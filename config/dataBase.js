@@ -1,18 +1,18 @@
-const mysql = require('mysql2');
+const mysql = require('mysql2')
 
-const connection= mysql.createConnection({
+const connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password:'171101',
-    database:'soft_vet'
+    password: 'olivia',
+    database:'db_softVet'
 });
 
-connection.connect((err)=>{
-    if(err){
-        console.log('error al conectar a la base de datos:',err);
+connection.connect((err) =>{
+    if (err) {
+        console.error('Error al conectar la base de datos:', err);
         return;
     }
-    console.log('conectado a la base de datos');
-});
+    console.log('Conectado a la base de datos')
+})
 
-module.exports={connection};
+module.exports = { connection };
