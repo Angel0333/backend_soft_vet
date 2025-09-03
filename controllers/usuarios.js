@@ -1,97 +1,94 @@
-const {connection}=require('../config/dataBase');
+const {connection} = require('../config DB/dataBase')
 
-// traer todos los Usuarios
-const mostrarUsuarios =(req,res) => {
-    connection.query('SELECT * FROM Usuarios', (error,results)=> {
-        if(error){
-            return res.status(500).json({error: 'error al obtener los Usuarios'});
+const mostrarUsuarios = (req, res) => {
+    connection.query('SELECT * FROM Usuarios', (error, result) => {
+        if (error) {
+            return res.status(500).json({ error: 'Error al obtener los usuarios'});
         }
-        res.json(results);
-    });
+        res.json(result);
+    })
 }
 
-// traer un Usuario por id
-const mostrarUsuario=(req,res)=>{
 
-    const {id}= req.params;
+const mostrarUsuario = (req, res) => {
+    const { id } = req.params;
 
-    connection.query('SELECT * FROM Usuarios WHERE  id=?', [id], (error,results)=>{
-        if(error){
-            return res.status(500).json({error:'error al obtener el Usuario'});
+//se puede utilizar  const query = 'SELECT * FROM Usuarios WHERE id = ${id}'  y ya no sera necesario utilizar el [id] abajo. pero queda vulnerable a las inyecciones sql    
+
+    connection.query('SELECT * FROM Usuarios WHERE id_usuario = ?', [id], (error, result) => {
+        if (error) {
+            return res.status(500).json ({ error: 'Error al obtener el usuario'});
         }
-        if(results.length===0){
-            return res.status(404).json({error:'Usuario no encontrado'});
+        if (results.length === 0) {
+            return res.status(404).json ({ error: 'Usuario no encontrado'});
+
         }
         res.json(results[0]);
-
-    });
+    });    
 }
 
-// crear un Usuario
-const crearUsuario= (req,res)=>{
-    const {nombre,contraseña} =req.body;
 
-    if(!nombre || !contraseña){
-        return res.status(400).json({
+const crearUsuario = (req, res) => {
+    const {nombre_usuario, contrasena_usuario} = req.body;
 
-            error: 'faltan datos requeridos: nombre y contraseña'
+    if (!nombre || !contraseña) {
+        return res.status (400).json ({
+            error: 'Faltan datos requeridos: nombre y contraseña'
         });
     }
+
     connection.query(
-        'INSERT INTO Usuarios (nombre,contraseña) values (?,?)',
-        [nombre,contraseña],
-        (error,results)=>{
-            if(error){
-                return res.status(500).json({
-                    error:'error al crear el Usuario',
-                    detalle: error.message
+        'INSERT INTO Usuarios (nombre_usuario, contrasena_usuario) VALUES (?,?)',
+        [nombre_usuario, contrasena_usuario],
+        (error, results) => {
+            if (error) {
+                return res.status (500).json ({
+                    error: 'Error al crear el usuario',
+                    detalle: error.message // muestra el error real
                 });
             }
-            res.json({
-                message:'Usuario creado correctamente'
+            res.json ({
+                message: "Usuario creado correctamente",
             });
         }
     );
-
 }
 
-// editar Usuario
-const editarUsuario = (req,res)=>{
-    const {id} = req.params;
-    const {nombre,contraseña}=req.body;
 
-    connection.query('UPDATE Usuarios SET nombre=?,contraseña=? WHERE id_usuario=?',
-        [nombre,contraseña,id],(error,results)=>{
-            if(error){
-                return res.status(500).json({error:'error al editar el usuario'});
-           }
-           if(results.affectedRows===0){
-            return res.status(404).json({error: 'Usuario no encontrado'});
-           }
-           res.json({id,nombre,contraseña});
+const editarUsuario = (req,res) => {
+    const { id } = req.params;
+    const {nombre_usuario, contrasena_usuario} = req.body;
 
-        });
-}
-
-// eliminar un usuario
-const elimnarUsuario=(req,res)=>{
-    const {id}=req.params;
-
-    connection.query('DELETE FROM  Usuarios WHERE id_usuario =?', [id],(error,results)=>{
-        if(error){
-            return res.status(500).json({error: 'error al eliminar el usuario'});
+    connection.query('UPDATE Usuarios SET nombre_usuario = ?, contrasena_usuario = ? WHERE id_usuario = ?', [nombre_usuario, contrasena_usuario, id_usuario], (error, results) => {
+        if (error) {
+            return res.status(500).json({ error: 'Error al editar el usuario' });
         }
-        if(results.affectedRows===0){
-            return res.status(404).json({error: 'usuario no encontrado'});
+        if (results.affectedRows === 0) {
+            return res.status(404).json ({ error: 'Usuario no encontrado' });
+        }
+        res.json ({ id_usuario, nombre_usuario, contrasena_usuario});
+    });
+}
+
+
+const eliminarUsuario = (req, res) => {
+    const { id } = req.params;
+
+    connection.query('DELETE FROM Usuarios WHERE id_usuario = ?', [id], (error, results) => {
+        if (error) {
+            return res.status(500).json ({error: 'Error al eliminar al usuario' });
+        }
+        if (results.affectedRows === 0) {
+            return res.status(404).json ({error: 'Usuario no encontrado'});
         }
         res.status(204).send();
     });
 }
 
-module.exports={
+module.exports = {
     mostrarUsuarios,
     mostrarUsuario,
     crearUsuario,
     editarUsuario,
-    elimnarUsuario
+    eliminarUsuario
 };
